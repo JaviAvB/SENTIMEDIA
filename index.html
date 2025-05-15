@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTIMEDIA - IA de Contenido Emocional</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset y estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            color: #fff;
+            background-color: #000;
+        }
+        
+        /* Preloader Épico */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Contenedor del logo */
+        .logo-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Logo principal */
+        .main-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ff0000, #ff6600, #ffcc00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px rgba(255, 102, 0, 0.7);
+            position: relative;
+            z-index: 10;
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        
+        /* Efecto de brillo */
+        .glow-effect {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 102, 0, 0.8), transparent 70%);
+            border-radius: 50%;
+            filter: blur(30px);
+            opacity: 0;
+            z-index: 5;
+        }
+        
+        /* Efecto de partículas doradas */
+        .gold-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, #ffcc00, #ff6600);
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ffcc00;
+            opacity: 0;
+            z-index: 8;
+        }
+        
+        /* Efecto de destello */
+        .flash-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            z-index: 20;
+        }
+        
+        /* Efecto de escaneo horizontal */
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #ff6600, transparent);
+            box-shadow: 0 0 20px #ff6600;
+            opacity: 0;
+            z-index: 15;
+        }
+        
+        /* Efecto de grid holográfico */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(255, 102, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 102, 0, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0;
+            z-index: 1;
+        }
+        
+        /* Efecto de sonido */
+        audio {
+            display: none;
+        }
+        
+        /* ------------------------- */
+        /* CONTENIDO PRINCIPAL */
+        /* ------------------------- */
+        
+        /* Particles.js Background */
+        #particles-js-main {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: #000;
+        }
+        
+        /* Main Container */
+        #main-container {
+            display: none;
+            opacity: 0;
+            width: 100%;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* Secciones */
+        .section {
+            display: none;
+            opacity: 0;
+            width: 100%;
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+        }
+        
+        .section.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            opacity: 1;
+        }
+        
+        /* Mood Selection Section - ESTILOS MEJORADOS */
+        .mood-selection {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .section-header h1 {
+            font-size: 4.5rem;
+            background: linear-gradient(to right, #ff0000, #ff6600, #ffcc00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
+        }
+        
+        .section-header p {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Mood Options - ESTILOS MEJORADOS */
+        .mood-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            width: 100%;
+            margin-bottom: 40px;
+            perspective: 1000px;
+        }
+        
+        .mood-card {
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 20px;
+            padding: 40px 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            border: 2px solid rgba(255, 102, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .mood-card:hover {
+            transform: translateY(-15px) rotateX(5deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 204, 0, 0.7);
+            background: rgba(30, 30, 30, 0.9);
+        }
+        
+        .mood-card.selected {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 0 40px rgba(255, 102, 0, 0.6),
+                        0 0 60px rgba(255, 204, 0, 0.3);
+            border-color: rgba(255, 204, 0, 0.9);
+            background: rgba(40, 40, 40, 0.95);
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 40px rgba(255, 102, 0, 0.6), 0 0 60px rgba(255, 204, 0, 0.3); }
+            50% { box-shadow: 0 0 60px rgba(255, 102, 0, 0.8), 0 0 80px rgba(255, 204, 0, 0.5); }
+            100% { box-shadow: 0 0 40px rgba(255, 102, 0, 0.6), 0 0 60px rgba(255, 204, 0, 0.3); }
+        }
+        
+        .mood-emoji {
+            font-size: 5rem;
+            margin-bottom: 25px;
+            transition: all 0.4s ease;
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+        }
+        
+        .mood-card:hover .mood-emoji {
+            transform: scale(1.3) rotate(5deg);
+        }
+        
+        .mood-card.selected .mood-emoji {
+            animation: pulse 1.5s infinite, rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg) scale(1.2); }
+            25% { transform: rotate(5deg) scale(1.2); }
+            50% { transform: rotate(0deg) scale(1.2); }
+            75% { transform: rotate(-5deg) scale(1.2); }
+            100% { transform: rotate(0deg) scale(1.2); }
+        }
+        
+        .mood-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #ffcc00, #ff6600);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .mood-desc {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .mood-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 204, 0, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: 0.6s;
+        }
+        
+        .mood-card:hover::before {
+            transform: translateX(100%);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Botones mejorados */
+        .btn {
+            padding: 18px 35px;
+            background: linear-gradient(45deg, #ff6600, #ffcc00);
+            border: none;
+            color: #111;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.5),
+                        0 0 40px rgba(255, 204, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            margin: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 102, 0, 0.8),
+                        0 0 50px rgba(255, 204, 0, 0.5);
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.6s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #333, #555);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        /* Content Recommendation Section */
+        .content-recommendation {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .mood-result {
+            text-align: center;
+            margin-bottom: 50px;
+            width: 100%;
+        }
+        
+        .mood-result h2 {
+            font-size: 3rem;
+            background: linear-gradient(to right, #ff6600, #ffcc00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
+        }
+        
+        .mood-result p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 800px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        .content-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .tab-btn {
+            padding: 12px 25px;
+            margin: 0 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(45deg, #ff6600, #ffcc00);
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
+            color: #111;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .content-grid {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            width: 100%;
+        }
+        
+        .content-grid.active {
+            display: grid;
+        }
+        
+       
+
+        .content-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Animación más suave */
+    height: auto; /* Altura flexible */
+}
+
+.content-image-container {
+    width: 100%;
+    height: 180px; /* Altura inicial */
+    overflow: hidden;
+    position: relative;
+    border-bottom: 2px solid rgba(255, 102, 0, 0.3);
+    transition: height 0.4s ease; /* Transición para la altura */
+}
+
+.content-card:hover .content-image-container {
+    height: 350px; /* Altura expandida */
+}
+
+.content-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.4s ease;
+}
+
+.content-card:hover .content-image {
+    transform: scale(1.05); /* Pequeño zoom para mejor efecto */
+}
+
+/* Mantenemos el placeholder para imágenes rotas */
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #ff6600, #ffcc00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111;
+    font-weight: bold;
+    text-align: center;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-family: 'Rajdhani', sans-serif;
+}
+        
+        .content-info {
+            padding: 20px;
+        }
+        
+        .content-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: white;
+            background: linear-gradient(to right, #ffcc00, #ff6600);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .content-meta {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .content-desc {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3; /* Añade esta línea */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
+        .watch-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #ff6600, #ffcc00);
+            border: none;
+            color: #111;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+        }
+        
+        .watch-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .section-header h1 {
+                font-size: 3.5rem;
+            }
+            
+            .mood-result h2 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-logo {
+                font-size: 5rem;
+            }
+            
+            .section-header h1 {
+                font-size: 2.8rem;
+            }
+            
+            .section-header p {
+                font-size: 1.2rem;
+            }
+            
+            .mood-options {
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            }
+            
+            .mood-emoji {
+                font-size: 4rem;
+            }
+            
+            .mood-name {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 15px 25px;
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-logo {
+                font-size: 3.5rem;
+            }
+            
+            .section-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .section-header p {
+                font-size: 1rem;
+            }
+            
+            .mood-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .mood-card {
+                padding: 30px 15px;
+            }
+            
+            .content-tabs {
+                gap: 8px;
+            }
+            
+            .tab-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader Épico -->
+    <div id="preloader">
+        <!-- Efecto de grid holográfico -->
+        <div class="grid-overlay"></div>
+        
+        <!-- Contenedor principal -->
+        <div class="logo-container">
+            <!-- Efecto de brillo -->
+            <div class="glow-effect"></div>
+            
+            <!-- Logo principal -->
+            <h1 class="main-logo">SENTIMEDIA</h1>
+            
+            <!-- Efecto de destello -->
+            <div class="flash-overlay"></div>
+        </div>
+        
+        <!-- Efecto de sonido -->
+        <audio id="startupSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-2759.mp3" preload="auto"></audio>
+        <audio id="boomSound" src="https://assets.mixkit.co/sfx/preview/mixkit-explosion-impact-1684.mp3" preload="auto"></audio>
+        <audio id="hoverSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" preload="auto"></audio>
+    </div>
+    
+    <!-- Contenido principal -->
+    <div id="main-container">
+        <!-- Particles.js Background -->
+        <div id="particles-js-main"></div>
+        
+        <!-- Sección de Selección de Estado de Ánimo (ahora es la primera pantalla) -->
+        <section id="mood-section" class="section mood-selection">
+            <div class="section-header">
+                <h1>¿Cómo te sientes hoy?</h1>
+                <p>Selecciona tu estado de ánimo actual para que podamos recomendarte el contenido perfecto que se adapte a tus emociones.</p>
+            </div>
+            
+            <div class="mood-options" id="mood-options">
+                <!-- Feliz -->
+                <div class="mood-card" data-mood="happy">
+                    <div class="mood-emoji">😊</div>
+                    <h3 class="mood-name">Feliz</h3>
+                    <p class="mood-desc">Contenido para mantener tu alegría y energía positiva</p>
+                </div>
+                
+                <!-- Triste -->
+                <div class="mood-card" data-mood="sad">
+                    <div class="mood-emoji">😢</div>
+                    <h3 class="mood-name">Triste</h3>
+                    <p class="mood-desc">Para acompañarte o ayudarte a cambiar tu estado de ánimo</p>
+                </div>
+                
+                <!-- Enojado -->
+                <div class="mood-card" data-mood="angry">
+                    <div class="mood-emoji">😠</div>
+                    <h3 class="mood-name">Enojado</h3>
+                    <p class="mood-desc">Contenido para calmar o canalizar esa energía</p>
+                </div>
+                
+                <!-- Relajado -->
+                <div class="mood-card" data-mood="relaxed">
+                    <div class="mood-emoji">😌</div>
+                    <h3 class="mood-name">Relajado</h3>
+                    <p class="mood-desc">Para mantener esa paz interior y disfrutar del momento</p>
+                </div>
+                
+                <!-- Motivado -->
+                <div class="mood-card" data-mood="motivated">
+                    <div class="mood-emoji">💪</div>
+                    <h3 class="mood-name">Motivado</h3>
+                    <p class="mood-desc">Contenido para impulsar tu productividad y creatividad</p>
+                </div>
+                
+                <!-- Nostálgico -->
+                <div class="mood-card" data-mood="nostalgic">
+                    <div class="mood-emoji">🕰️</div>
+                    <h3 class="mood-name">Nostálgico</h3>
+                    <p class="mood-desc">Para viajar en el tiempo y revivir buenos recuerdos</p>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn" id="find-content-btn" disabled>Encontrar Contenido</button>
+            </div>
+        </section>
+        
+        <!-- Sección de Recomendaciones de Contenido -->
+        <section id="content-section" class="section content-recommendation">
+            <div class="mood-result" id="mood-result">
+                <h2 id="mood-title">Recomendaciones para <span id="selected-mood">Feliz</span></h2>
+                <p id="mood-description">Hemos seleccionado estos contenidos especialmente para complementar o mejorar tu estado de ánimo actual.</p>
+            </div>
+            
+            <div class="content-tabs">
+                <button class="tab-btn active" data-tab="movies">Películas</button>
+                <button class="tab-btn" data-tab="series">Series</button>
+                <button class="tab-btn" data-tab="music">Música</button>
+                <button class="tab-btn" data-tab="books">Libros</button>
+            </div>
+            
+            <!-- Películas -->
+            <div class="content-grid active" id="movies-grid">
+                <!-- Las tarjetas de películas se generarán dinámicamente con JavaScript -->
+            </div>
+            
+            <!-- Series -->
+            <div class="content-grid" id="series-grid">
+                <!-- Las tarjetas de series se generarán dinámicamente con JavaScript -->
+            </div>
+            
+            <!-- Música -->
+            <div class="content-grid" id="music-grid">
+                <!-- Las tarjetas de música se generarán dinámicamente con JavaScript -->
+            </div>
+            
+            <!-- Libros -->
+            <div class="content-grid" id="books-grid">
+                <!-- Las tarjetas de libros se generarán dinámicamente con JavaScript -->
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" id="back-to-mood-btn">Cambiar Estado de Ánimo</button>
+                <button class="btn" id="new-recommendations-btn">Nuevas Recomendaciones</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // ANIMACIÓN DE INICIO ÉPICA
+        // =========================
+        
+        async function runStartupAnimation() {
+            const mainLogo = document.querySelector('.main-logo');
+            const glowEffect = document.querySelector('.glow-effect');
+            const flashOverlay = document.querySelector('.flash-overlay');
+            const gridOverlay = document.querySelector('.grid-overlay');
+            const startupSound = document.getElementById('startupSound');
+            const boomSound = document.getElementById('boomSound');
+            
+            // 1. Inicio con efecto de grid holográfico
+            gsap.to(gridOverlay, {
+                opacity: 0.3,
+                duration: 1
+            });
+            
+            // 2. Efecto de escaneo inicial
+            createScanLine();
+            await new Promise(r => setTimeout(r, 500));
+            
+            // 3. Sonido de inicio
+            startupSound.volume = 0.3;
+            startupSound.play();
+            
+            // 4. Aparece el logo con efecto de zoom
+            gsap.to(mainLogo, {
+                opacity: 1,
+                scale: 1,
+                duration: 1.5,
+                ease: "back.out(1.7)",
+                onComplete: () => {
+                    // Efecto de brillo intenso
+                    gsap.to(glowEffect, {
+                        opacity: 0.8,
+                        scale: 1.5,
+                        duration: 0.5
+                    });
+                    
+                    // Crear partículas doradas
+                    createGoldenParticles();
+                }
+            });
+            
+            await new Promise(r => setTimeout(r, 1500));
+            
+            // 5. Efecto de explosión
+            boomSound.volume = 0.4;
+            boomSound.play();
+            
+            // Flash blanco
+            gsap.to(flashOverlay, {
+                opacity: 0.9,
+                duration: 0.1,
+                onComplete: () => {
+                    gsap.to(flashOverlay, {
+                        opacity: 0,
+                        duration: 0.3
+                    });
+                }
+            });
+            
+            // Efecto de onda expansiva
+            createShockwave();
+            
+            // 6. Efecto de escaneo final
+            await new Promise(r => setTimeout(r, 500));
+            createScanLine(true);
+            
+            // 7. Desvanecer y mostrar contenido principal
+            await new Promise(r => setTimeout(r, 1000));
+            
+            gsap.to("#preloader", {
+                opacity: 0,
+                duration: 1,
+                onComplete: () => {
+                    document.getElementById('preloader').style.display = 'none';
+                    showMainContent();
+                }
+            });
+        }
+        
+        // Crear efecto de escaneo
+        function createScanLine(final = false) {
+            const scanLine = document.createElement('div');
+            scanLine.className = 'scan-line';
+            scanLine.style.top = `${Math.random() * 100}%`;
+            document.getElementById('preloader').appendChild(scanLine);
+            
+            if (final) {
+                scanLine.style.height = '4px';
+                scanLine.style.background = 'linear-gradient(to right, transparent, #ff0000, #ffcc00, #ff0000, transparent)';
+            }
+            
+            gsap.fromTo(scanLine, 
+                { opacity: 0, scaleX: 0 },
+                { 
+                    opacity: final ? 1 : 0.7, 
+                    scaleX: 1, 
+                    duration: final ? 0.8 : 0.5,
+                    onComplete: () => {
+                        gsap.to(scanLine, {
+                            opacity: 0,
+                            duration: 0.5,
+                            onComplete: () => scanLine.remove()
+                        });
+                    }
+                }
+            );
+        }
+        
+        // Crear partículas doradas
+        function createGoldenParticles() {
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'gold-particle';
+                
+                // Posición inicial alrededor del logo
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 100;
+                const size = 3 + Math.random() * 5;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `calc(50% + ${Math.cos(angle) * distance}px)`;
+                particle.style.top = `calc(50% + ${Math.sin(angle) * distance}px)`;
+                
+                document.getElementById('preloader').appendChild(particle);
+                
+                // Animación hacia afuera
+                gsap.to(particle, {
+                    x: `+=${Math.cos(angle) * 200}`,
+                    y: `+=${Math.sin(angle) * 200}`,
+                    opacity: 1,
+                    duration: 1 + Math.random(),
+                    delay: i * 0.02,
+                    ease: "power2.out",
+                    onComplete: () => {
+                        particle.remove();
+                    }
+                });
+            }
+        }
+        
+        // Crear efecto de onda expansiva
+        function createShockwave() {
+            const shockwave = document.createElement('div');
+            shockwave.style.position = 'absolute';
+            shockwave.style.width = '10px';
+            shockwave.style.height = '10px';
+            shockwave.style.borderRadius = '50%';
+            shockwave.style.background = 'radial-gradient(circle, rgba(255,204,0,0.8), transparent)';
+            shockwave.style.left = '50%';
+            shockwave.style.top = '50%';
+            shockwave.style.transform = 'translate(-50%, -50%)';
+            shockwave.style.zIndex = '9';
+            shockwave.style.filter = 'blur(5px)';
+            
+            document.getElementById('preloader').appendChild(shockwave);
+            
+            gsap.to(shockwave, {
+                width: '500px',
+                height: '500px',
+                opacity: 0,
+                duration: 1,
+                ease: "power2.out",
+                onComplete: () => shockwave.remove()
+            });
+        }
+        
+        // Mostrar contenido principal
+        function showMainContent() {
+            const main = document.getElementById('main-container');
+            main.style.display = 'block';
+            gsap.to(main, { 
+                opacity: 1, 
+                duration: 1, 
+                onComplete: () => {
+                    // Mostrar directamente la sección de selección de estado de ánimo
+                    showSection('mood');
+                } 
+            });
+        }
+
+        // Variables de estado
+        let currentMood = null;
+        let currentSection = null;
+
+        // Mostrar sección específica
+        function showSection(sectionId) {
+            // Ocultar sección actual si existe
+            if (currentSection) {
+                const currentSectionElement = document.getElementById(`${currentSection}-section`);
+                gsap.to(currentSectionElement, {
+                    opacity: 0,
+                    duration: 0.5,
+                    onComplete: () => {
+                        currentSectionElement.classList.remove('active');
+                        showNewSection(sectionId);
+                    }
+                });
+            } else {
+                // Si no hay sección actual (primera vez)
+                showNewSection(sectionId);
+            }
+        }
+
+        // Mostrar nueva sección
+        function showNewSection(sectionId) {
+            const newSection = document.getElementById(`${sectionId}-section`);
+            newSection.classList.add('active');
+            currentSection = sectionId;
+            
+            // Animación de entrada
+            gsap.fromTo(newSection, 
+                { opacity: 0, y: 20 },
+                { 
+                    opacity: 1, 
+                    y: 0, 
+                    duration: 0.8,
+                    onComplete: () => {
+                        window.scrollTo(0, 0);
+                    }
+                }
+            );
+            
+            // Inicializar partículas del fondo principal solo una vez
+            if (!window.particlesInitialized) {
+                initMainParticles();
+                window.particlesInitialized = true;
+            }
+        }
+
+        // Configuración de partículas.js para el fondo principal
+        function initMainParticles() {
+            particlesJS('particles-js-main', {
+                particles: {
+                    number: { 
+                        value: 80, 
+                        density: { 
+                            enable: true, 
+                            value_area: 800 
+                        } 
+                    },
+                    color: { 
+                        value: "#ff6600" 
+                    },
+                    shape: { 
+                        type: "circle" 
+                    },
+                    opacity: {
+                        value: 0.5,
+                        random: true,
+                        anim: { 
+                            enable: true, 
+                            speed: 1, 
+                            opacity_min: 0.1 
+                        }
+                    },
+                    size: {
+                        value: 3,
+                        random: true,
+                        anim: {
+                            enable: true,
+                            speed: 2,
+                            size_min: 0.1,
+                            sync: false
+                        }
+                    },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#ff6600",
+                        opacity: 0.2,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 1,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false,
+                        attract: {
+                            enable: false,
+                            rotateX: 600,
+                            rotateY: 1200
+                        }
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: {
+                            enable: true,
+                            mode: "grab"
+                        },
+                        onclick: {
+                            enable: true,
+                            mode: "push"
+                        },
+                        resize: true
+                    },
+                    modes: {
+                        grab: {
+                            distance: 140,
+                            line_linked: {
+                                opacity: 0.5
+                            }
+                        },
+                        push: {
+                            particles_nb: 4
+                        }
+                    }
+                },
+                retina_detect: true
+            });
+        }
+
+        // Datos de recomendaciones por estado de ánimo
+        const recommendations = {
+            happy: {
+                movies: [
+                    {
+                        title: "La La Land",
+                        image: "https://www.lahiguera.net/musicalia/artistas/varios/disco/8135/la_la_land_original_motion_picture_soundtrack-portada.jpg",
+                        year: 2016,
+                        genre: "Musical, Romance",
+                        description: "Un pianista de jazz y una aspirante a actriz se enamoran mientras persiguen sus sueños en Los Ángeles.",
+                        link: "https://www.themoviedb.org/movie/313369-la-la-land"
+                    },
+                    {
+                        title: "Intensamente",
+                        image: "https://fundacionhojarasca.com/wp-content/uploads/2023/12/poster-intensamente.jpg",
+                        year: 2015,
+                        genre: "Animación, Comedia",
+                        description: "Las emociones de una niña, Alegría, Miedo, Ira, Asco y Tristeza, la guían a través de una vida cambiante.",
+                        link: "https://www.themoviedb.org/movie/150540-inside-out"
+                    },
+                    {
+                        title: "El Gran Hotel Budapest",
+                        image: "https://i.pinimg.com/736x/c5/78/bf/c578bfb3862d2b35c84aa831fba6daa6.jpg",
+                        year: 2014,
+                        genre: "Comedia, Drama",
+                        description: "Las aventuras de Gustave H, un legendario conserje de un famoso hotel europeo, y Zero Moustafa, el botones que se convierte en su amigo más leal.",
+                        link: "https://www.themoviedb.org/movie/120467-the-grand-budapest-hotel"
+                    }
+                ],
+                series: [
+                    {
+                        title: "Parks and Recreation",
+                        image: "https://img.betaseries.com/3X3ZzOERAKgpRvAD_gxj431-6Fk=/600x900/smart/https%3A%2F%2Fpictures.betaseries.com%2Ffonds%2Fposter%2Fe23db867ec6ba4c607c70e0db6810bb3.jpg",
+                        year: "2009-2015",
+                        genre: "Comedia",
+                        description: "Los absurdos funcionarios del departamento de parques de una pequeña ciudad de Indiana intentan hacer su trabajo rodeados de burocracia.",
+                        link: "https://www.themoviedb.org/tv/8592-parks-and-recreation"
+                    },
+                    {
+                        title: "The Good Place",
+                        image: "https://es.web.img3.acsta.net/c_310_420/pictures/16/06/27/10/27/579057.jpg",
+                        year: "2016-2020",
+                        genre: "Comedia, Fantasía",
+                        description: "Eleanor Shellstrop, una mujer recientemente fallecida, se encuentra en el más allá y se da cuenta de que ha sido enviada por error al Buen Lugar.",
+                        link: "https://www.themoviedb.org/tv/66573-the-good-place"
+                    },
+                    {
+                        title: "Brooklyn Nine-Nine",
+                        image: "https://image.tmdb.org/t/p/w500/hgRMSOt7a1b8qyQR68vUixJPang.jpg",
+                        year: "2013-2021",
+                        genre: "Comedia, Policíaco",
+                        description: "Jake Peralta, un brillante pero inmaduro detective de la policía de Nueva York, entra en conflicto con su nuevo y estricto capitán.",
+                        link: "https://www.themoviedb.org/tv/48891-brooklyn-nine-nine"
+                    }
+                ],
+                music: [
+                    {
+                        title: "Happy - Pharrell Williams",
+                        image: "https://i.scdn.co/image/ab67616d0000b273d9194aa18fa4c9362b47464f",
+                        year: 2013,
+                        genre: "Pop, Funk",
+                        description: "El éxito mundial que te hará bailar y sonreír sin importar dónde estés.",
+                        link: "https://open.spotify.com/track/60nZcImufyMA1MKQY3dcCH"
+                    },
+                    {
+                        title: "Don't Stop Me Now - Queen",
+                        image: "https://i.pinimg.com/736x/f9/04/33/f9043372b7267f83e25fef9e74e000dd.jpg",
+                        year: 1978,
+                        genre: "Rock",
+                        description: "Una canción llena de energía que celebra la alegría de vivir.",
+                        link: "https://open.spotify.com/track/7hQJA50XrCWABAu5v6QZ4i"
+                    },
+                    {
+                        title: "Uptown Funk - Mark Ronson ft. Bruno Mars",
+                        image: "https://i.scdn.co/image/ab67616d0000b273d5f3739fca04299590fffe59",
+                        year: 2014,
+                        genre: "Funk, Pop",
+                        description: "El éxito funk que dominó las listas mundiales con su ritmo contagioso.",
+                        link: "https://open.spotify.com/track/32OlwWuMpZ6b0aN2RZOeMS"
+                    }
+                ],
+                books: [
+                    {
+                        title: "El Principito",
+                        image: "https://m.media-amazon.com/images/I/7117vj-5gdL._SY425_.jpg",
+                        author: "Antoine de Saint-Exupéry",
+                        year: 1943,
+                        description: "Un piloto se encuentra con un pequeño príncipe que viene de otro planeta y comparten profundas reflexiones sobre la vida.",
+                        link: "https://www.goodreads.com/book/show/157993.The_Little_Prince"
+                    },
+                    {
+                        title: "El Alquimista",
+                        image: "https://images-na.ssl-images-amazon.com/images/I/71aFt4+OTOL.jpg",
+                        author: "Paulo Coelho",
+                        year: 1988,
+                        description: "Un pastor andaluz viaja en busca de un tesoro y descubre el verdadero significado de la vida.",
+                        link: "https://www.goodreads.com/book/show/865.The_Alchemist"
+                    },
+                    {
+                        title: "El Diario de Greg",
+                        image: "https://m.media-amazon.com/images/I/91RDGQHgwsL._AC_UF894,1000_QL80_.jpg",
+                        author: "Jeff Kinney",
+                        year: 2007,
+                        description: "Las divertidas desventuras de Greg Heffley, un niño que está creciendo y documentando su vida en un diario.",
+                        link: "https://www.goodreads.com/book/show/6411961-diary-of-a-wimpy-kid"
+                    }
+                ]
+            },
+            sad: {
+    movies: [
+        // Película profundamente emotiva (para conectar con la tristeza)
+        {
+            title: "Siempre a tu lado (Hachiko)",
+            image: "https://m.media-amazon.com/images/M/MV5BYjkxMjdlNjItZGEzMy00ZDAwLTg3MGEtZWYzYjAyZTdkYjAyXkEyXkFqcGc@._V1_.jpg",
+            year: 2009,
+            genre: "Drama, Familiar",
+            description: "La conmovedora historia real de un perro que esperó fielmente a su dueño durante años en la estación de tren.",
+            link: "https://www.themoviedb.org/movie/18148-hachi-a-dog-s-tale"
+        },
+        // Película con mensaje inspirador (para reflexionar)
+        {
+            title: "La Vida es Bella",
+            image: "https://play-lh.googleusercontent.com/DqdhXAU_3FhTkRr4O6hWUcqSpGmJRI2CpL2KJ19ce1prv6Y3rwFx27_nXLX7Aw_Pts8j",
+            year: 1997,
+            genre: "Drama, Bélico",
+            description: "Un padre judío usa su imaginación para proteger a su hijo de los horrores de un campo de concentración nazi.",
+            link: "https://www.themoviedb.org/movie/637-life-is-beautiful"
+        },
+        // Película para levantar el ánimo (para comenzar a sentirse mejor)
+        {
+            title: "El Diario de Bridget Jones",
+            image: "https://static.wikia.nocookie.net/doblaje/images/f/f4/BridgetJones.jpg/revision/latest?cb=20240504231400&path-prefix=es",
+            year: 2001,
+            genre: "Comedia, Romance",
+            description: "Las divertidas desventuras de Bridget Jones, una mujer que busca el amor mientras lidia con sus inseguridades.",
+            link: "https://www.themoviedb.org/movie/634-bridget-jones-s-diary"
+        }
+    ],
+                series: [
+                    {
+                        title: "This Is Us",
+                        image: "https://es.web.img2.acsta.net/r_1280_720/pictures/20/10/27/03/06/5088182.jpg",
+                        year: "2016-2022",
+                        genre: "Drama",
+                        description: "La vida de varios individuos que comparten el mismo cumpleaños, incluyendo a una pareja esperando trillizos.",
+                        link: "https://www.themoviedb.org/tv/67136-this-is-us"
+                    },
+                    {
+                        title: "After Life",
+                        image: "https://es.web.img2.acsta.net/pictures/19/02/25/12/04/4106093.jpg",
+                        year: "2019-2022",
+                        genre: "Comedia, Drama",
+                        description: "Un hombre deprimido por la muerte de su esposa decide vivir sin preocupaciones, diciendo y haciendo lo que quiera.",
+                        link: "https://www.themoviedb.org/tv/83867-after-life"
+                    },
+                    {
+                        title: "BoJack Horseman",
+                        image: "https://m.media-amazon.com/images/M/MV5BZmMwMDlkNTEtMmQzZS00ODQ0LWJlZmItOTgwYWMwZGM4MzFiXkEyXkFqcGc@._V1_.jpg",
+                        year: "2014-2020",
+                        genre: "Animación, Comedia",
+                        description: "Un caballo humanoide, ex estrella de televisión, lucha contra la depresión y la adicción mientras intenta revivir su carrera.",
+                        link: "https://www.themoviedb.org/tv/61222-bo-jack-horseman"
+                    }
+                ],
+                music: [
+    // Canción principal que solicitaste
+    {
+        title: "Cry - Cigarettes After Sex",
+        image: "https://i.scdn.co/image/ab67616d0000b273ea7caaff71dea1051d49b2fe",
+        year: 2017,
+        genre: "Dream Pop, Shoegaze",
+        description: "Una melancólica y atmosférica balada sobre el dolor de un amor no correspondido.",
+        link: "https://open.spotify.com/track/7jKsiV1X34aMlMgzDQUKPk"
+    },
+    // Canción popular triste pero reconfortante
+    {
+        title: "Someone You Loved - Lewis Capaldi",
+        image: "https://i1.sndcdn.com/artworks-5VCxiNQdKysNTV2y-Qu5QwQ-t500x500.jpg",
+        year: 2019,
+        genre: "Pop, Soul",
+        description: "Una poderosa balada sobre la pérdida y el vacío que deja alguien especial.",
+        link: "https://open.spotify.com/track/7qEHsqek33rTcFNT9PFqLf"
+    },
+    // Canción triste pero con mensaje de superación
+    {
+        title: "When We Were Young - Adele",
+        image: "https://i.scdn.co/image/ab67616d0000b273ba5db46f4b838ef6027e6f96",
+        year: 2015,
+        genre: "Pop, Soul",
+        description: "Una nostálgica reflexión sobre el paso del tiempo y los recuerdos perdidos.",
+        link: "https://open.spotify.com/track/7GgWAITsYJaRM3r50rfh5w"
+    }
+],
+                books: [
+                    {
+                        title: "Las Ventajas de Ser Invisible",
+                        image: "https://images.cdn3.buscalibre.com/fit-in/360x360/f4/3d/f43dae2a8041ef2925e464300080b9d9.jpg",
+                        author: "Stephen Chbosky",
+                        year: 1999,
+                        description: "Charlie, un adolescente introvertido, escribe cartas sobre sus experiencias con el amor, la amistad y la pérdida.",
+                        link: "https://www.goodreads.com/book/show/22628.The_Perks_of_Being_a_Wallflower"
+                    },
+                    {
+                        title: "El Corazón es un Cazador Solitario",
+                        image: "https://www.planetadelibros.com.mx/usuaris/libros/fotos/255/m_libros/254853_portada_el-corazon-es-un-cazador-solitario_carson-mccullers_201703201714.jpg",
+                        author: "Carson McCullers",
+                        year: 1940,
+                        description: "La historia de un sordomudo y sus relaciones con varios marginados en una pequeña ciudad de Georgia.",
+                        link: "https://www.goodreads.com/book/show/3118.The_Heart_is_a_Lonely_Hunter"
+                    },
+                    {
+                        title: "El Día que se Perdió la Cordura",
+                        image: "https://m.media-amazon.com/images/I/91sTljIuXWL._UF894,1000_QL80_.jpg",
+                        author: "Javier Castillo",
+                        year: 2018,
+                        description: "Un thriller psicológico que explora los límites de la cordura humana.",
+                        link: "https://www.goodreads.com/book/show/38285967-el-d-a-que-se-perdi-la-cordura"
+                    }
+                ]
+            },
+            angry: {
+                movies: [
+                    {
+                        title: "Fight Club",
+                        image: "https://m.media-amazon.com/images/I/81D+KJkO4SL.jpg",
+                        year: 1999,
+                        genre: "Drama",
+                        description: "Un oficinista insomne y un fabricante de jabón forman un club de lucha subterráneo que se convierte en algo mucho más grande.",
+                        link: "https://www.themoviedb.org/movie/550-fight-club"
+                    },
+                    {
+                        title: "V de Vendetta",
+                        image: "https://m.media-amazon.com/images/I/91gP3zQshwL._AC_UF1000,1000_QL80_.jpg",
+                        year: 2005,
+                        genre: "Acción, Thriller",
+                        description: "En un futuro distópico, un misterioso revolucionario llamado V lucha contra un gobierno tiránico.",
+                        link: "https://www.themoviedb.org/movie/752-v-for-vendetta"
+                    },
+                    {
+                        title: "John Wick",
+                        image: "https://es.web.img3.acsta.net/pictures/16/10/26/08/50/198471.jpg",
+                        year: 2014,
+                        genre: "Acción, Thriller",
+                        description: "Un ex asesino sale de su retiro para vengar la muerte de su perro, el último regalo de su difunta esposa.",
+                        link: "https://www.themoviedb.org/movie/245891-john-wick"
+                    }
+                ],
+                series: [
+                    {
+                        title: "The Punisher",
+                        image: "https://hips.hearstapps.com/hmg-prod/images/punsiher-season-2-poster-1547133343.jpeg",
+                        year: "2017-2019",
+                        genre: "Acción, Drama",
+                        description: "Frank Castle, un veterano de guerra, se convierte en un vigilante que castiga a los criminales que destruyeron su familia.",
+                        link: "https://www.themoviedb.org/tv/67178-the-punisher"
+                    },
+                    {
+                        title: "Peaky Blinders",
+                        image: "https://image.tmdb.org/t/p/w500/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg",
+                        year: "2013-2022",
+                        genre: "Drama, Crimen",
+                        description: "Una familia de gánsteres en el Birmingham de 1919 dirige un imperio criminal mientras lidia con rivales y la ley.",
+                        link: "https://www.themoviedb.org/tv/60574-peaky-blinders"
+                    },
+                    {
+                        title: "Breaking Bad",
+                        image: "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg",
+                        year: "2008-2013",
+                        genre: "Drama, Crimen",
+                        description: "Un profesor de química con cáncer terminal se asocia con un exalumno para fabricar y vender metanfetamina.",
+                        link: "https://www.themoviedb.org/tv/1396-breaking-bad"
+                    }
+                ],
+                "music": [
+        {
+            "title": "Circles - Mac Miller",
+            "image": "https://www.lahiguera.net/musicalia/artistas/mac_miller/disco/10316/mac_miller_circles-portada.jpg",
+            "year": 2020,
+            "genre": "Hip-Hop Alternativo",
+            "description": "Una canción introspectiva y relajante sobre el ciclo de la vida y las segundas oportunidades.",
+            "link": "https://open.spotify.com/track/21jGcNKet2qwijlDFuPiPb"
+        },
+        {
+            "title": "EARTHQUAKE - Tyler, The Creator",
+            "image": "https://f4.bcbits.com/img/a3527596721_2.jpg",
+            "year": 2021,
+            "genre": "Rap Alternativo",
+            "description": "Un tema relajante con influencias de jazz y soul, característico del estilo de Tyler.",
+            "link": "https://open.spotify.com/track/3F6b6Q6xQgSBKlJ6LgX9YA"
+        },
+        {
+            "title": "En vez de huir - Joséan Log",
+            "image": "https://images.squarespace-cdn.com/content/v1/55934b08e4b09c6a27501d79/35a6ec35-db5b-415f-8a4c-f11d7f5c731f/MNDLN+Portada+Final.jpeg",
+            "year": 2023,
+            "genre": "Pop/R&B",
+            "description": "Una balada íntima y cálida sobre enfrentar los miedos y elegir quedarse en lugar de escapar.",
+            "link": "https://open.spotify.com/track/4J6YvS6X7j3PZ6tVd6kxfW"
+        }
+    ],
+    "books": [
+        {
+            "title": "Orgullo y Prejuicio",
+            "image": "https://m.media-amazon.com/images/I/81RC15VKlQL._UF894,1000_QL80_.jpg",
+            "author": "Jane Austen",
+            "year": 1813,
+            "description": "Clásico romántico que explora las tensiones sociales y el amor entre Elizabeth Bennet y el señor Darcy.",
+            "link": "https://www.goodreads.com/book/show/1885.Pride_and_Prejudice"
+        },
+        {
+            "title": "Cien Años de Soledad",
+            "image": "https://images.cdn3.buscalibre.com/fit-in/360x360/61/8d/618d227e8967274cd9589a549adff52d.jpg",
+            "author": "Gabriel García Márquez",
+            "year": 1967,
+            "description": "La obra maestra del realismo mágico que narra la historia de la familia Buendía en Macondo.",
+            "link": "https://www.goodreads.com/book/show/320.One_Hundred_Years_of_Solitude"
+        },
+        {
+            "title": "Harry Potter y la Piedra Filosofal",
+            "image": "https://m.media-amazon.com/images/I/81dxFCnAp0L.jpg",
+            "author": "J.K. Rowling",
+            "year": 1997,
+            "description": "El inicio de la saga del joven mago que descubre su destino en el mundo de la magia.",
+            "link": "https://www.goodreads.com/book/show/3.Harry_Potter_and_the_Sorcerer_s_Stone"
+        }
+    ]
+},
+            relaxed: {
+                movies: [
+                    {
+                        title: "El Viaje de Chihiro",
+                        image: "https://image.tmdb.org/t/p/w500/Ab8mkHmkYADjU7wQiOkia9BzGvS.jpg",
+                        year: 2001,
+                        genre: "Animación, Fantasía",
+                        description: "Una niña debe trabajar en un balneario de dioses para liberar a sus padres transformados en cerdos.",
+                        link: "https://www.themoviedb.org/movie/129-spirited-away"
+                    },
+                    {
+                        title: "Chef",
+                        image: "https://es.web.img2.acsta.net/pictures/14/06/09/13/03/260365.jpg",
+                        year: 2014,
+                        genre: "Comedia, Drama",
+                        description: "Un chef renuncia a su trabajo en un restaurante y compra un camión de comida para reconectar con su pasión por la cocina.",
+                        link: "https://www.themoviedb.org/movie/214756-chef"
+                    },
+                    {
+                        title: "El Gran Pez",
+                        image: "https://m.media-amazon.com/images/M/MV5BNTRkYWY3ZDItMmNiYi00YjhiLWJlNjgtYWZlN2Y5MmM3NTRkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+                        year: 2003,
+                        genre: "Aventura, Fantasía",
+                        description: "Un hombre intenta reconciliarse con su padre moribundo recordando las fantásticas historias que este le contaba.",
+                        link: "https://www.themoviedb.org/movie/587-big-fish"
+                    }
+                ],
+                series: [
+                    {
+                        title: "The Office",
+                        image: "https://image.tmdb.org/t/p/w500/qWnJzyZhyy74gjpSjIXWmuk0ifX.jpg",
+                        year: "2005-2013",
+                        genre: "Comedia",
+                        description: "La vida cotidiana de los empleados de una oficina de una empresa de papel en Scranton, Pennsylvania.",
+                        link: "https://www.themoviedb.org/tv/2316-the-office"
+                    },
+                    {
+                        title: "Friends",
+                        image: "https://www.allinmagazine.mx/wp-content/uploads/2023/11/Portada-Nota-Curiosidades-Friends-850x560.jpg",
+                        year: "1994-2004",
+                        genre: "Comedia",
+                        description: "Las vidas, amores y risas de seis amigos que viven en Manhattan.",
+                        link: "https://www.themoviedb.org/tv/1668-friends"
+                    },
+                    {
+                        title: "The Great British Bake Off",
+                        image: "https://www.mvtimes.com/mvt/uploads/2022/11/GBBO.jpg",
+                        year: "2010-presente",
+                        genre: "Reality",
+                        description: "Concursantes aficionados a la repostería compiten en una serie de desafíos culinarios.",
+                        link: "https://www.themoviedb.org/tv/4608-the-great-british-bake-off"
+                    }
+                ],
+                music: [
+                    {
+                        title: "Weightless - Marconi Union",
+                        image: "https://f4.bcbits.com/img/a1957476575_16.jpg",
+                        year: 2011,
+                        genre: "Ambient",
+                        description: "Considerada científicamente como la canción más relajante del mundo.",
+                        link: "https://open.spotify.com/track/3iXU5M5Y5M5Y5M5Y5M5Y5M"
+                    },
+                    {
+                        title: "Clair de Lune - Claude Debussy",
+                        image: "https://i.ebayimg.com/images/g/5LUAAOSwFHliAqIr/s-l400.jpg",
+                        year: 1905,
+                        genre: "Clásica",
+                        description: "Una de las piezas más famosas y relajantes de la música clásica.",
+                        link: "https://open.spotify.com/track/5y7lO86gJ1bHUYzJZ5M0O8"
+                    },
+                    {
+                        title: "Sunflower - Post Malone, Swae Lee",
+                        image: "https://i1.sndcdn.com/artworks-000453095229-y5m0e2-t500x500.jpg",
+                        year: 2018,
+                        genre: "Pop, Hip-Hop",
+                        description: "Una canción relajante y melódica sobre una relación complicada.",
+                        link: "https://open.spotify.com/track/0RiRZpuVRbi7oqRdSMwhQY"
+                    }
+                ],
+                books: [
+                    {
+                        title: "El Libro del Té",
+                        image: "https://images.cdn1.buscalibre.com/fit-in/360x360/cc/99/cc99b229445a994b752bb20fcc0bdad9.jpg",
+                        author: "Kakuzō Okakura",
+                        year: 1906,
+                        description: "Un ensayo sobre la importancia del té en la cultura japonesa y su relación con la filosofía zen.",
+                        link: "https://www.goodreads.com/book/show/272135.The_Book_of_Tea"
+                    },
+                    {
+                        title: "Siddhartha",
+                        image: "https://m.media-amazon.com/images/I/81VfWIKypvL._UF894,1000_QL80_.jpg",
+                        author: "Hermann Hesse",
+                        year: 1922,
+                        description: "La historia espiritual de un hombre en la India durante la época de Buda.",
+                        link: "https://www.goodreads.com/book/show/52036.Siddhartha"
+                    },
+                    {
+                        title: "El Arte de la Guerra",
+                        image: "https://m.media-amazon.com/images/I/61sjff4POyL._AC_UF894,1000_QL80_.jpg",
+                        author: "Sun Tzu",
+                        year: "Siglo V a.C.",
+                        description: "Un antiguo tratado militar chino que también ofrece sabiduría para la vida cotidiana.",
+                        link: "https://www.goodreads.com/book/show/10534.The_Art_of_War"
+                    }
+                ]
+            },
+            motivated: {
+                movies: [
+                    {
+                        title: "Rocky",
+                        image: "https://www.mubis.es/media/movies/1891/134365/rocky-balboa-original.jpg",
+                        year: 1976,
+                        genre: "Drama, Deportes",
+                        description: "Un boxeador aficionado de Filadelfia recibe la oportunidad de luchar por el título mundial de los pesos pesados.",
+                        link: "https://www.themoviedb.org/movie/1366-rocky"
+                    },
+                    {
+                        title: "En Busca de la Felicidad",
+                        image: "https://m.media-amazon.com/images/I/61yQ30qZrbL._AC_UF894,1000_QL80_.jpg",
+                        year: 2006,
+                        genre: "Drama, Biografía",
+                        description: "Un padre desempleado lucha por mantener a su hijo mientras persigue un trabajo en el competitivo mundo de las finanzas.",
+                        link: "https://www.themoviedb.org/movie/1402-the-pursuit-of-happyness"
+                    },
+                    {
+                        title: "El Discurso del Rey",
+                        image: "https://anomues.github.io/img/rey.jpg",
+                        year: 2010,
+                        genre: "Drama, Histórico",
+                        description: "La historia del rey Jorge VI de Inglaterra y su lucha por superar su tartamudez con la ayuda de un terapeuta del habla.",
+                        link: "https://www.themoviedb.org/movie/45269-the-king-s-speech"
+                    }
+                ],
+                series: [
+                    {
+                        title: "The Last Dance",
+                        image: "data:image/jpeg;base64,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",
+                        year: 2020,
+                        genre: "Documental, Deportes",
+                        description: "La historia de Michael Jordan y los Chicago Bulls durante su temporada 1997-98, cuando perseguían su sexto campeonato de la NBA.",
+                        link: "https://www.themoviedb.org/tv/124515-the-last-dance"
+                    },
+                    {
+                        title: "Ted Lasso",
+                        image: "https://www.apple.com/tv-pr/articles/2021/03/apples-ted-lasso-scores-at-the-wga-awards-winning-best-new-series-and-best-comedy-series/images/big-image/032121_Ted_Lasso_WGA_Awards_Big_Image_01_big_image_post.jpg.og.jpg",
+                        year: "2020-presente",
+                        genre: "Comedia, Deportes",
+                        description: "Un entrenador de fútbol americano es contratado para dirigir un equipo de fútbol inglés, a pesar de no tener experiencia.",
+                        link: "https://www.themoviedb.org/tv/94997-ted-lasso"
+                    },
+                    {
+                        title: "Shark Tank",
+                        image: "https://fmglobo.com/u/fotografias/m/2024/2/4/f425x230-5313_19295_5050.jpg",
+                        year: "2009-presente",
+                        genre: "Reality, Negocios",
+                        description: "Emprendedores presentan sus ideas de negocio a un panel de inversionistas multimillonarios.",
+                        link: "https://www.themoviedb.org/tv/49686-shark-tank"
+                    }
+                ],
+                music: [
+                    {
+                        title: "Eye of the Tiger - Survivor",
+                        image: "https://m.media-amazon.com/images/I/81dvE4P1wAL._UF1000,1000_QL80_.jpg",
+                        year: 1982,
+                        genre: "Rock",
+                        description: "El tema principal de Rocky III que se ha convertido en un himno de motivación.",
+                        link: "https://open.spotify.com/track/2HHtWyy5CgaQbC7XSoOb0e"
+                    },
+                    {
+                        title: "Lose Yourself - Eminem",
+                        image: "https://m.media-amazon.com/images/I/41++Om0N4DL._UF1000,1000_QL80_.jpg",
+                        year: 2002,
+                        genre: "Hip-Hop",
+                        description: "Una canción sobre aprovechar tu oportunidad cuando se presenta.",
+                        link: "https://open.spotify.com/track/5Z01UMMf7V1o0MzF86s6WJ"
+                    },
+                    {
+                        title: "Hall of Fame - The Script ft. will.i.am",
+                        image: "https://i1.sndcdn.com/artworks-000063360532-tqoyht-t500x500.jpg",
+                        year: 2012,
+                        genre: "Pop, Rock",
+                        description: "Un himno inspirador sobre alcanzar la grandeza.",
+                        link: "https://open.spotify.com/track/1X1DWw2pcNZ8zSub3uhlNz"
+                    }
+                ],
+                books: [
+                    {
+                        title: "El Poder del Ahora",
+                        image: "https://m.media-amazon.com/images/I/81GGobIuGhL.jpg",
+                        author: "Eckhart Tolle",
+                        year: 1997,
+                        description: "Una guía espiritual para vivir en el presente y encontrar la paz interior.",
+                        link: "https://www.goodreads.com/book/show/6708.The_Power_of_Now"
+                    },
+                    {
+                        title: "Hábitos Atómicos",
+                        image: "https://m.media-amazon.com/images/I/71mssSA7QgL._AC_UF894,1000_QL80_.jpg",
+                        author: "James Clear",
+                        year: 2018,
+                        description: "Una guía práctica para construir buenos hábitos y romper los malos.",
+                        link: "https://www.goodreads.com/book/show/40121378-atomic-habits"
+                    },
+                    {
+                        title: "El Monje que Vendió su Ferrari",
+                        image: "https://m.media-amazon.com/images/I/81kxQPpFUvL.jpg",
+                        author: "Robin S. Sharma",
+                        year: 1997,
+                        description: "Una fábula espiritual sobre vivir con coraje, pasión y propósito.",
+                        link: "https://www.goodreads.com/book/show/138276.The_Monk_Who_Sold_His_Ferrari"
+                    }
+                ]
+            },
+            nostalgic: {
+                movies: [
+                    {
+                        title: "Volver al Futuro",
+                        image: "https://m.media-amazon.com/images/M/MV5BNzVhMDRlMzctMjgxOC00MDllLTkzZWUtZTk4ODgyNDgwZTBmXkEyXkFqcGc@._V1_.jpg",
+                        year: 1985,
+                        genre: "Ciencia Ficción, Comedia",
+                        description: "Un adolescente viaja accidentalmente 30 años al pasado en un DeLorean convertido en máquina del tiempo.",
+                        link: "https://www.themoviedb.org/movie/105-back-to-the-future"
+                    },
+                    {
+                        title: "E.T. el Extraterrestre",
+                        image: "data:image/jpeg;base64,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",
+                        year: 1982,
+                        genre: "Ciencia Ficción, Aventura",
+                        description: "Un niño solitario hace amistad con un extraterrestre perdido en la Tierra y lo ayuda a regresar a su hogar.",
+                        link: "https://www.themoviedb.org/movie/601-et-the-extra-terrestrial"
+                    },
+                    {
+                        title: "Los Goonies",
+                        image: "data:image/jpeg;base64,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",
+                        year: 1985,
+                        genre: "Aventura, Comedia",
+                        description: "Un grupo de niños encuentra un mapa del tesoro y se embarca en una aventura para salvar su vecindario.",
+                        link: "https://www.themoviedb.org/movie/9340-the-goonies"
+                    }
+                ],
+                series: [
+                    {
+                        title: "Stranger Things",
+                        image: "data:image/jpeg;base64,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",
+                        year: "2016-presente",
+                        genre: "Ciencia Ficción, Terror",
+                        description: "Cuando un niño desaparece, un pequeño pueblo descubre un misterio que involucra experimentos secretos, fuerzas sobrenaturales y una niña muy especial.",
+                        link: "https://www.themoviedb.org/tv/66732-stranger-things"
+                    },
+                    {
+                        title: "The Wonder Years",
+                        image: "https://m.media-amazon.com/images/M/MV5BMDE1MTM2NzAtY2U3MC00OGViLThmODEtY2UzMWVlZWYwYjU1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+                        year: "1988-1993",
+                        genre: "Comedia, Drama",
+                        description: "Un hombre adulto recuerda su adolescencia en los años 60 y 70 en un suburbio estadounidense.",
+                        link: "https://www.themoviedb.org/tv/456-the-wonder-years"
+                    },
+                    {
+                        title: "That '70s Show",
+                        image: "data:image/jpeg;base64,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",
+                        year: "1998-2006",
+                        genre: "Comedia",
+                        description: "Un grupo de adolescentes en los años 70 navega por las complejidades de la vida, el amor y la amistad.",
+                        link: "https://www.themoviedb.org/tv/1115-that-70s-show"
+                    }
+                ],
+                music: [
+                    {
+                        title: "Sweet Child O' Mine - Guns N' Roses",
+                        image: "https://i.discogs.com/XCXiemMRkFL2oLIAXcs8cqg8SBH-qevIrflVPm5N7KQ/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY4MDg5/MDctMTQ2NjcyNTA0/My02MDE2LmpwZWc.jpeg",
+                        year: 1987,
+                        genre: "Rock",
+                        description: "Uno de los mayores éxitos de la banda, con un riff de guitarra inolvidable.",
+                        link: "https://open.spotify.com/track/7snQQk1zcKl8gZ92AnueZW"
+                    },
+                    {
+                        title: "Billie Jean - Michael Jackson",
+                        image: "https://muzikalia.com/wp-content/uploads/2021/06/michael-jackson-billie-jean-portada.jpg",
+                        year: 1982,
+                        genre: "Pop, Funk",
+                        description: "Un clásico de Michael Jackson con un ritmo contagioso.",
+                        link: "https://open.spotify.com/track/5ChkMS8OtdzJeqyybCc9R5"
+                    },
+                    {
+                        title: "Livin' on a Prayer - Bon Jovi",
+                        image: "https://i.discogs.com/OroxnsV9r47AykDjVEZfu57uedmmbAbJSEDlVuZujl4/rs:fit/g:sm/q:90/h:584/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI5OTc0/MzEtMTY4MzQ4NzYz/MC04MjQzLmpwZWc.jpeg",
+                        year: 1986,
+                        genre: "Rock",
+                        description: "Un himno de los 80 que sigue siendo popular en las fiestas décadas después.",
+                        link: "https://open.spotify.com/track/37ZJ0p5Jm13JPevGcx4SkF"
+                    }
+                ],
+                books: [
+                {
+    "title": "El Hobbit",
+    "image": "https://www.planetadelibros.com/usuaris/libros/fotos/357/original/portada_el-hobbit_j-r-r-tolkien_202207271130.jpg",
+    "author": "J.R.R. Tolkien",
+    "year": 1937,
+    "description": "La aventura de Bilbo Bolsón, un hobbit que abandona su cómoda vida para embarcarse en una épica misión con un grupo de enanos y el mago Gandalf.",
+    "link": "https://www.goodreads.com/book/show/5907.The_Hobbit"
+},
+                    {
+                        title: "Las Crónicas de Narnia: El León, la Bruja y el Ropero",
+                        image: "https://www.planetadelibros.com/usuaris/libros/fotos/49/original/portada_el-leon-la-bruja-y-el-armario_c-s-lewis_201505260935.jpg",
+                        author: "C.S. Lewis",
+                        year: 1950,
+                        description: "Cuatro niños descubren un mundo mágico a través de un ropero y se ven envueltos en una batalla entre el bien y el mal.",
+                        link: "https://www.goodreads.com/book/show/11127.The_Lion_the_Witch_and_the_Wardrobe"
+                    },
+                    {
+                        title: "Matilda",
+                        image: "https://images.cdn2.buscalibre.com/fit-in/520x520/03/4e/034ee5b70020d0746da53c0f912c0599.jpg",
+                        author: "Roald Dahl",
+                        year: 1988,
+                        description: "La historia de una niña extraordinariamente inteligente con poderes telequinéticos y su lucha contra la cruel directora Trunchbull.",
+                        link: "https://www.goodreads.com/book/show/39988.Matilda"
+                    }
+                ]
+            }
+        };
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            runStartupAnimation();
+            
+            // Selección de estado de ánimo
+            const moodCards = document.querySelectorAll('.mood-card');
+            const findContentBtn = document.getElementById('find-content-btn');
+            const hoverSound = document.getElementById('hoverSound');
+            
+            moodCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.volume = 0.2;
+                    hoverSound.play();
+                    
+                    gsap.to(card, {
+                        scale: 1.05,
+                        duration: 0.3
+                    });
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    if (!card.classList.contains('selected')) {
+                        gsap.to(card, {
+                            scale: 1,
+                            duration: 0.3
+                        });
+                    }
+                });
+                
+                card.addEventListener('click', () => {
+                    // Deseleccionar todas las tarjetas primero
+                    moodCards.forEach(c => {
+                        c.classList.remove('selected');
+                        gsap.to(c, {
+                            scale: 1,
+                            duration: 0.3
+                        });
+                    });
+                    
+                    // Seleccionar la tarjeta clickeada
+                    card.classList.add('selected');
+                    currentMood = card.getAttribute('data-mood');
+                    
+                    // Animación de selección
+                    gsap.to(card, {
+                        scale: 1.1,
+                        duration: 0.3
+                    });
+                    
+                    // Habilitar botón de encontrar contenido
+                    findContentBtn.disabled = false;
+                    
+                    // Sonido de selección
+                    boomSound.currentTime = 0;
+                    boomSound.volume = 0.3;
+                    boomSound.play();
+                });
+            });
+            
+            // Botón de encontrar contenido
+            findContentBtn.addEventListener('click', () => {
+                if (currentMood) {
+                    // Actualizar el título de la sección de recomendaciones
+                    const moodTitle = document.getElementById('selected-mood');
+                    const moodName = document.querySelector(`.mood-card[data-mood="${currentMood}"] .mood-name`).textContent;
+                    moodTitle.textContent = moodName;
+                    
+                    // Cargar recomendaciones
+                    loadRecommendations(currentMood);
+                    
+                    // Mostrar sección de recomendaciones
+                    showSection('content');
+                }
+            });
+            
+            // Botón para volver a selección de estado de ánimo
+            document.getElementById('back-to-mood-btn').addEventListener('click', () => {
+                showSection('mood');
+            });
+            
+            // Botón para nuevas recomendaciones
+            document.getElementById('new-recommendations-btn').addEventListener('click', () => {
+                if (currentMood) {
+                    loadRecommendations(currentMood);
+                }
+            });
+            
+            // Pestañas de contenido
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const contentGrids = document.querySelectorAll('.content-grid');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Desactivar todas las pestañas
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    contentGrids.forEach(grid => grid.classList.remove('active'));
+                    
+                    // Activar la pestaña seleccionada
+                    btn.classList.add('active');
+                    const tabId = btn.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-grid`).classList.add('active');
+                });
+            });
+        });
+        
+        // Cargar recomendaciones según el estado de ánimo
+        function loadRecommendations(mood) {
+            const moodData = recommendations[mood];
+            
+            // Cargar películas
+            const moviesGrid = document.getElementById('movies-grid');
+            moviesGrid.innerHTML = '';
+            moodData.movies.forEach(movie => {
+                moviesGrid.appendChild(createContentCard(movie, 'movie'));
+            });
+            
+            // Cargar series
+            const seriesGrid = document.getElementById('series-grid');
+            seriesGrid.innerHTML = '';
+            moodData.series.forEach(series => {
+                seriesGrid.appendChild(createContentCard(series, 'series'));
+            });
+            
+            // Cargar música
+            const musicGrid = document.getElementById('music-grid');
+            musicGrid.innerHTML = '';
+            moodData.music.forEach(music => {
+                musicGrid.appendChild(createContentCard(music, 'music'));
+            });
+            
+            // Cargar libros
+            const booksGrid = document.getElementById('books-grid');
+            booksGrid.innerHTML = '';
+            moodData.books.forEach(book => {
+                booksGrid.appendChild(createContentCard(book, 'book'));
+            });
+        }
+        
+        // Crear tarjeta de contenido
+        function createContentCard(data, type) {
+    const card = document.createElement('div');
+    card.className = 'content-card';
+    
+    let metaContent = '';
+    if (type === 'movie' || type === 'series') {
+        metaContent = `<span>${data.year}</span> • <span>${data.genre}</span>`;
+    } else if (type === 'music') {
+        metaContent = `<span>${data.year}</span> • <span>${data.genre}</span>`;
+    } else if (type === 'book') {
+        metaContent = `<span>${data.author}</span> • <span>${data.year}</span>`;
+    }
+    
+    // Contenedor de imagen con efecto de expansión
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'content-image-container';
+    
+    // Función para crear placeholder
+    const createPlaceholder = () => {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'image-placeholder';
+        placeholder.textContent = data.title.substring(0, 30) + (data.title.length > 30 ? '...' : '');
+        imgContainer.appendChild(placeholder);
+    };
+    
+    // Verificar si la URL de la imagen es válida
+    if (!data.image || data.image.includes('undefined') || data.image.includes('null')) {
+        createPlaceholder();
+    } else {
+        const img = new Image();
+        img.className = 'content-image';
+        img.alt = data.title;
+        
+        // Intentar cargar la imagen principal
+        img.src = data.image;
+        
+        img.onload = function() {
+            // Si la imagen carga correctamente, la añadimos
+            imgContainer.appendChild(img);
+        };
+        
+        img.onerror = function() {
+            // Si falla, intentamos con una fuente alternativa
+            if (type === 'movie' || type === 'series') {
+                // Intentar con una imagen genérica de TMDB
+                const fallbackImg = new Image();
+                fallbackImg.className = 'content-image';
+                fallbackImg.alt = data.title;
+                fallbackImg.src = 'https://via.placeholder.com/300x450/333/666?text=' + encodeURIComponent(data.title.substring(0, 20));
+                
+                fallbackImg.onerror = function() {
+                    // Si también falla el fallback, mostrar placeholder
+                    createPlaceholder();
+                };
+                
+                imgContainer.appendChild(fallbackImg);
+            } else {
+                // Para otros tipos, mostrar placeholder directamente
+                createPlaceholder();
+            }
+        };
+    }
+    
+    card.innerHTML = `
+        <div class="content-info">
+            <h3 class="content-title">${data.title}</h3>
+            <div class="content-meta">${metaContent}</div>
+            <p class="content-desc">${data.description}</p>
+            <a href="${data.link}" target="_blank" class="watch-btn">Ver más</a>
+        </div>
+    `;
+    
+    // Insertamos el contenedor de imagen al principio
+    card.insertBefore(imgContainer, card.firstChild);
+    
+    return card;
+}
+    </script>
+</body>
+</html>
