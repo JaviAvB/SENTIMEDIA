@@ -605,7 +605,7 @@
             }
             
             .section-header h1 {
-                font-size: 2.2rem;
+                font-size: 2 rem;
             }
             
             .section-header p {
@@ -629,6 +629,26 @@
                 font-size: 0.9rem;
             }
         }
+        /* Tablet (768px en adelante) */
+@media (min-width: 768px) {
+  .main-logo { font-size: 5rem; }
+  .section-header h1 { font-size: 2.8rem; }
+  .mood-options { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Laptop (992px en adelante) */
+@media (min-width: 992px) {
+  .main-logo { font-size: 6rem; }
+  .section-header h1 { font-size: 3.5rem; }
+  .mood-options { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Desktop grande (1200px en adelante) */
+@media (min-width: 1200px) {
+  .main-logo { font-size: 8rem; }
+  .section-header h1 { font-size: 4.5rem; }
+  .mood-options { grid-template-columns: repeat(4, 1fr); }
+}
     </style>
 </head>
 <body>
