@@ -1827,12 +1827,6 @@
                 showSection('mood');
             });
             
-            // Botón para nuevas recomendaciones
-            document.getElementById('new-recommendations-btn').addEventListener('click', () => {
-                if (currentMood) {
-                    loadRecommendations(currentMood);
-                }
-            });
             
             // Pestañas de contenido
             const tabBtns = document.querySelectorAll('.tab-btn');
